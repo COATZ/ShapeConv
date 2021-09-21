@@ -1,7 +1,7 @@
 import cv2
 
 # 1. configuration for inference
-nclasses = 40  # 40 or 13
+nclasses = 13  # 40 or 13
 ignore_label = 255
 #   official_origin: official origin,
 #   blank_crop: croped blank padding,
@@ -132,9 +132,9 @@ inference = dict(
 )
 
 # 2. configuration for train/test
-root_workdir = '/home/cartizzu/Documents/2_CODE/4_SEGMENTATION/ShapeConv'
+root_workdir = '/data/acentauri/user/cartizzu/ShapeConv'
 dataset_type = 'NYUV2Dataset'
-dataset_root = '/media/cartizzu/DATA/DATASETS/NYU_V2/nyu_v2'
+dataset_root = '/data/acentauri/share/DATASETS/NYU_V2/nyu_v2'
 
 common = dict(
     seed=0,
@@ -191,7 +191,7 @@ test = dict(
 )
 
 ## 2.2 configuration for train
-max_epochs = 1000
+max_epochs = 800
 
 train = dict(
     data=dict(

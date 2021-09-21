@@ -41,7 +41,7 @@ if 'depth' in data_channels:
 # img_norm_cfg = dict(mean=norm_mean,
 #                     std=norm_std,
 #                     max_pixel_value=255.0)
-conv_cfg = dict(type='ShapeConv')    # Conv, ShapeConv
+conv_cfg = dict(type='Conv')    # Conv, ShapeConv
 norm_cfg = dict(type='BN')      # 'FRN', 'BN', 'SyncBN', 'GN'
 act_cfg = dict(type='Relu', inplace=True)    # Relu, Tlu
 multi_label = False
@@ -92,6 +92,7 @@ inference = dict(
                 dict(
                     type='JunctionBlock',
                     fusion_method='concat',
+                    # fusion_method='add',
                     top_down=dict(
                         from_layer='enhance',
                         adapt_upsample=True,
@@ -132,9 +133,9 @@ inference = dict(
 )
 
 # 2. configuration for train/test
-root_workdir = '/home/cartizzu/Documents/2_CODE/4_SEGMENTATION/ShapeConv'
+root_workdir = '/data/acentauri/user/cartizzu/ShapeConv'
 dataset_type = 'NYUV2Dataset'
-dataset_root = '/media/cartizzu/DATA/DATASETS/NYU_V2/nyu_v2'
+dataset_root = '/data/acentauri/share/DATASETS/NYU_V2/nyu_v2'
 
 common = dict(
     seed=0,
@@ -175,7 +176,7 @@ test = dict(
         ),
         dataloader=dict(
             type='DataLoader',
-            samples_per_gpu=batch_size_per_gpu,
+            samples_per_gpu=batch_size_per_gpu // 2,
             workers_per_gpu=2,
             shuffle=False,
             drop_last=False,

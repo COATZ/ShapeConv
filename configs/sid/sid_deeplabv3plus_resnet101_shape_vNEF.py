@@ -1,48 +1,33 @@
 import cv2
 
 # 1. configuration for inference
-nclasses = 40  # 40 or 13
+nclasses = 13
 ignore_label = 255
-#   official_origin: official origin,
-#   blank_crop: croped blank padding,
-#   official_crop: [h_range=(45, 471), w_range=(41, 601)] -> (427, 561): official cropping to get best depth ,
-#   depth_pred_crop: 640*480 -> dowmsample(320, 240) -> crop(304, 228) -> upsample(640, 480)
-data_crop_types = {'official_origin': dict(type='official_origin', padding_size=(480, 640)),
-                   'blank_crop': dict(type='blank_crop', center_crop_size=(464, 624), padding_size=(464, 624)),
-                   'official_crop': dict(type='official_crop', h_range=(45, 471), w_range=(41, 601),
-                                         padding_size=(427, 561)),
-                   'depth_pred_crop': dict(type='depth_pred_crop', downsample=(240, 320), center_crop_size=(228, 304),
-                                           upsample=(480, 640), padding_size=(480, 640))}
-
-crop_paras = data_crop_types['official_crop']
-size_h, size_w = crop_paras['padding_size']
-batch_size_per_gpu = 4
+size_h = 1080
+size_w = 1080
+batch_size_per_gpu = 1
 data_channels = ['rgb', 'hha']  # ['rgb', 'hha', 'depth']
 image_pad_value = ()
 norm_mean = ()
 norm_std = ()
 if 'rgb' in data_channels:
-    image_pad_value += (123.675, 116.280, 103.530)      # when using pre-trained models (ImageNet mean)
-    # norm_mean += (0.0, 0.0, 0.0)
-    # norm_std += (1.0, 1.0, 1.0)
+    image_pad_value += (123.675, 116.280, 103.530)
     norm_mean += (0.485, 0.456, 0.406)
     norm_std += (0.229, 0.224, 0.225)
 if 'hha' in data_channels:
     image_pad_value += (123.675, 116.280, 103.530)
-    # norm_mean += (0.0, 0.0, 0.0)
-    # norm_std += (1.0, 1.0, 1.0)
     norm_mean += (0.485, 0.456, 0.406)
     norm_std += (0.229, 0.224, 0.225)
 if 'depth' in data_channels:
-    image_pad_value += (0.0, )
-    norm_mean += (0.0, )
-    norm_std += (1.0, )
+    image_pad_value += (123.675, )
+    norm_mean += (0.485, )
+    norm_std += (0.229, )
 
 # img_norm_cfg = dict(mean=norm_mean,
 #                     std=norm_std,
 #                     max_pixel_value=255.0)
 conv_cfg = dict(type='ShapeConv')    # Conv, ShapeConv
-norm_cfg = dict(type='BN')      # 'FRN', 'BN', 'SyncBN', 'GN'
+norm_cfg = dict(type='SyncBN')      # 'FRN', 'BN', 'SyncBN', 'GN'
 act_cfg = dict(type='Relu', inplace=True)    # Relu, Tlu
 multi_label = False
 
@@ -60,7 +45,7 @@ inference = dict(
         encoder=dict(
             backbone=dict(
                 type='ResNet',
-                arch='resnext101_32x8d',    # resnext101_32x8d, resnext50_32x4d, resnet152, resnet101, resnet50
+                arch='resnet101',   # resnext101_32x8d, resnext50_32x4d, resnet152, resnet101, resnet50
                 replace_stride_with_dilation=[False, False, True],
                 multi_grid=[1, 2, 4],
                 conv_cfg=conv_cfg,
@@ -132,9 +117,9 @@ inference = dict(
 )
 
 # 2. configuration for train/test
-root_workdir = '/home/cartizzu/Documents/2_CODE/4_SEGMENTATION/ShapeConv'
+root_workdir = '/data/acentauri/user/cartizzu/ShapeConv'
 dataset_type = 'NYUV2Dataset'
-dataset_root = '/media/cartizzu/DATA/DATASETS/NYU_V2/nyu_v2'
+dataset_root = '/data/acentauri/share/DATASETS/NYU_V2/nyu_v2'
 
 common = dict(
     seed=0,
@@ -152,7 +137,6 @@ common = dict(
         dict(type='MIoU', num_classes=nclasses, average='frequency_weighted'),
         dict(type='Accuracy', num_classes=nclasses, average='pixel'),
         dict(type='Accuracy', num_classes=nclasses, average='class'),
-        # dict(type='TrimapAccuracy', num_classes=nclasses, average='pixel', trimap_size=4, save_dir=root_workdir + "/trimap"),
     ],
     dist_params=dict(backend='nccl')
 )
@@ -163,8 +147,6 @@ test = dict(
         dataset=dict(
             type=dataset_type,
             root=dataset_root,
-            classes=nclasses,
-            crop_paras=crop_paras,
             imglist_name='test.txt',
             channels=data_channels,
             multi_label=multi_label,
@@ -176,22 +158,21 @@ test = dict(
         dataloader=dict(
             type='DataLoader',
             samples_per_gpu=batch_size_per_gpu,
-            workers_per_gpu=2,
+            workers_per_gpu=4,
             shuffle=False,
             drop_last=False,
             pin_memory=True,
         ),
     ),
-    tta=dict(
-        scales=[0.5, 0.75, 1.0, 1.25, 1.5, 1.75],
-        biases=[None, None, None, None, None, None],  # bias may change the size ratio
-        flip=True,
-    ),
-    # save_pred=True,
+    # tta=dict(
+    #     scales=[0.5, 0.75, 1.0, 1.25, 1.5, 1.75],
+    #     biases=[None, None, None, None, None, None],    # bias may change the size ratio
+    #     flip=True,
+    # ),
 )
 
 ## 2.2 configuration for train
-max_epochs = 1000
+max_epochs = 100
 
 train = dict(
     data=dict(
@@ -199,8 +180,6 @@ train = dict(
             dataset=dict(
                 type=dataset_type,
                 root=dataset_root,
-                classes=nclasses,
-                crop_paras=crop_paras,
                 imglist_name='train.txt',
                 channels=data_channels,
                 multi_label=multi_label,
@@ -231,8 +210,6 @@ train = dict(
             dataset=dict(
                 type=dataset_type,
                 root=dataset_root,
-                classes=nclasses,
-                crop_paras=crop_paras,
                 imglist_name='test.txt',
                 channels=data_channels,
                 multi_label=multi_label,
@@ -256,8 +233,8 @@ train = dict(
     optimizer=dict(type='SGD', lr=0.007, momentum=0.9, weight_decay=0.0001),
     lr_scheduler=dict(type='PolyLR', max_epochs=max_epochs, end_lr=0.002),
     max_epochs=max_epochs,
-    trainval_ratio=10,
+    trainval_ratio=1,
     log_interval=10,
-    snapshot_interval=1000,
+    snapshot_interval=max_epochs,
     save_best=True,
 )
