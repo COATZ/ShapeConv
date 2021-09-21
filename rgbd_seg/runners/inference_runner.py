@@ -52,6 +52,8 @@ class InferenceRunner(Common):
                 if torch.cuda.device_count() > 1:
                     model = torch.nn.DataParallel(model)
                 model.cuda()
+
+        # print(model)
         return model
 
     def compute(self, output):

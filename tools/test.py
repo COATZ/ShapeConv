@@ -2,6 +2,10 @@ import os
 import sys
 import argparse
 
+
+# import torch
+
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
 
 from rgbd_seg.runners import TestRunner
@@ -46,4 +50,5 @@ def main():
 
 
 if __name__ == '__main__':
+    # torch.cuda.empty_cache()
     main()
