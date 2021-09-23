@@ -2,9 +2,7 @@ import os
 import sys
 import argparse
 
-
-# import torch
-
+import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
 
@@ -26,6 +24,7 @@ def parse_args():
 
 
 def main():
+    
     args = parse_args()
 
     cfg_path = args.config
@@ -51,4 +50,7 @@ def main():
 
 if __name__ == '__main__':
     # torch.cuda.empty_cache()
+    Tstart = time.time()
     main()
+    Tdone = time.time()
+    print('All in {:.2f}'.format(Tdone-Tstart))

@@ -9,6 +9,7 @@ import torch.nn.functional as F
 from .inference_runner import InferenceRunner
 from ..utils import gather_tensor, vis_utils
 
+import time
 
 class TestRunner(InferenceRunner):
     def __init__(self, test_cfg, inference_cfg, base_cfg=None):
@@ -40,6 +41,7 @@ class TestRunner(InferenceRunner):
         with torch.no_grad():
             img_id = 0
             for idx, (image, mask) in enumerate(self.test_dataloader):
+                Tstart_iter = time.time()
                 if self.use_gpu:
                     image = image.cuda()
                     mask = mask.cuda()
@@ -81,6 +83,8 @@ class TestRunner(InferenceRunner):
                     idx + 1,
                     ', '.join(['{}: {}'.format(k, np.round(v, 4)) for k, v in
                                res.items()])))
+                Tend_iter = time.time()
+                self.logger.info('Iter done in {:.2f}'.format(Tend_iter-Tstart_iter))
 
         self.logger.info('Test Result: {}'.format(', '.join(
             ['{}: {}'.format(k, np.round(v, 4)) for k, v in res.items()])))

@@ -8,10 +8,12 @@ from .act import build_act_layer
 from .norm import build_norm_layer
 from .registry import UTILS
 from rgbd_seg.models.utils.shape_conv import ShapeConv2d
+from rgbd_seg.models.utils.shape_conv_sphe import ShapeConv2d_sphe
 
 convs = {
     'Conv': nn.Conv2d,
     'ShapeConv': ShapeConv2d,
+    'ShapeConv_sphe': ShapeConv2d_sphe,
     # TODO: octave conv
 }
 
