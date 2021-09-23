@@ -1,6 +1,7 @@
 # Project related
 model_zoo/*.pth
 SHAPECONV_ENV/
+OFFSETS/
 
 
 # Byte-compiled / optimized / DLL files
