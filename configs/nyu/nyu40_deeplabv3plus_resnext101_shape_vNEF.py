@@ -16,7 +16,7 @@ data_crop_types = {'official_origin': dict(type='official_origin', padding_size=
 
 crop_paras = data_crop_types['official_crop']
 size_h, size_w = crop_paras['padding_size']
-batch_size_per_gpu = 4
+batch_size_per_gpu = 2
 data_channels = ['rgb', 'hha']  # ['rgb', 'hha', 'depth']
 image_pad_value = ()
 norm_mean = ()
