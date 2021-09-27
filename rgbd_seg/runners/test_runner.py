@@ -41,6 +41,7 @@ class TestRunner(InferenceRunner):
         with torch.no_grad():
             img_id = 0
             for idx, (image, mask) in enumerate(self.test_dataloader):
+                print(idx, image.shape)
                 Tstart_iter = time.time()
                 if self.use_gpu:
                     image = image.cuda()

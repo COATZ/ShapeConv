@@ -118,8 +118,8 @@ inference = dict(
 
 # 2. configuration for train/test
 root_workdir = '/data/acentauri/user/cartizzu/ShapeConv'
-dataset_type = 'NYUV2Dataset'
-dataset_root = '/data/acentauri/share/DATASETS/NYU_V2/nyu_v2'
+dataset_type = 'SIDDataset'
+dataset_root = '/data/acentauri/share/DATASETS/Standford2D3D_ShapeConv_Persp_2/'
 
 common = dict(
     seed=0,

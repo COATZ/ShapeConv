@@ -115,20 +115,20 @@ class ShapeConv2d_sphe(Module):
                 # print(self.kernel_size)
                 # if self.groups != 1 :
                 #     sys.exit("Warning groups problem")
-                print(input.shape)
-                print(self.kernel_size)
-                print(self.stride)
-                print(self.padding)
-                print(self.dilation)
-                print(self.groups)
-                # offset = torch.zeros(input.shape[0],2*self.kernel_size[0]*self.kernel_size[1]*self.groups,int(input.shape[2]/self.stride[0]),int(input.shape[3]/self.stride[1])).cuda()
+                # print(input.shape)
+                # print(self.kernel_size)
+                # print(self.stride)
+                # print(self.padding)
+                # print(self.dilation)
+                # print(self.groups)
+                offset = torch.zeros(input.shape[0],2*self.kernel_size[0]*self.kernel_size[1]*self.groups,int(input.shape[2]/self.stride[0]),int(input.shape[3]/self.stride[1])).cuda()
                 # print(offset.shape)
-                offset_file = './OFFSETS/offset_'+str(int(input.shape[3]/self.stride[1]))+'_'+str(int(input.shape[2]/self.stride[0]))+'_'+str(self.kernel_size[1])+'_'+str(self.kernel_size[0])+'_'+str(self.stride[1])+'_'+str(self.stride[0])+'_1'+'.pt'
-                offset = torch.load(offset_file).cuda()
-                offset.require_gradient = False
-                if input.shape[0] != 1: 
-                    offset = torch.cat([offset for _ in range(input.shape[0])],dim=0)
-                print(offset.shape)
+                # offset_file = './OFFSETS/offset_'+str(int(input.shape[3]/self.stride[1]))+'_'+str(int(input.shape[2]/self.stride[0]))+'_'+str(self.kernel_size[1])+'_'+str(self.kernel_size[0])+'_'+str(self.stride[1])+'_'+str(self.stride[0])+'_1'+'.pt'
+                # offset = torch.load(offset_file).cuda()
+                # offset.require_gradient = False
+                # if input.shape[0] != 1: 
+                #     offset = torch.cat([offset for _ in range(input.shape[0])],dim=0)
+                # print(offset.shape)
                 out = torchvision.ops.deform_conv2d(input, offset, weight, self.bias, self.stride, self.padding, self.dilation)
                 del offset
                 torch.cuda.empty_cache()
