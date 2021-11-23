@@ -1,0 +1,1 @@
+python3 tools/test.py configs/sid/sid_deeplabv3plus_resnet101_shape_vJZ.py model_zoo/sid_deeplabv3plus_resnet101_shape.pth 

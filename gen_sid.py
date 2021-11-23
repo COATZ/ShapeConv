@@ -59,33 +59,34 @@ def save_depth(dir_in, area_names, dir_out):
 
 def save_hha(dir_in, area_names, dir_out):
     for i, area_name in enumerate(area_names):
-        area, name = area_name.split(' ')
-
-        dir_dep_in = os.path.join(dir_in, area, 'data', 'depth')
-        dir_hha_out = os.path.join(dir_out, area, 'hha')
-        if not os.path.isdir(dir_hha_out):
-            os.makedirs(dir_hha_out)
-
-        path_mat = os.path.join(dir_in, area, 'data', 'pose', name + '_pose.json')
-        with open(path_mat) as f:
-            json_data = f.read()
-        camera_mat = json.loads(json_data)['camera_k_matrix']
-        camera_mat = np.array(camera_mat)
-        camera_mat[:2] = camera_mat[:2] / 2
-        # print('camera_mat', camera_mat)
-
-        path_dep_in = os.path.join(dir_dep_in, name + '_depth.png')
-        depth = cv2.imread(path_dep_in, cv2.IMREAD_UNCHANGED)
-        # Depth images are stored as 16-bit PNGs and
-        # have a maximum depth of 128m and a sensitivity of 1/512m(65535 is maximum depth).
-        depth += 1  # ignore max depth (65535 -> 0)
-        depth = depth.astype(np.float)
-        depth /= 512.0
-        hha = getHHA(camera_mat, depth, depth)  # input depth (m)
-        # print(hha.min(), hha.max())
-        path_hha_out = os.path.join(dir_hha_out, name + '.png')
-        cv2.imwrite(path_hha_out, hha)  # cv2.write will change hha into ahh
-
+        if i >= 0:
+            area, name = area_name.split(' ')
+    
+            dir_dep_in = os.path.join(dir_in, area, 'data', 'depth')
+            dir_hha_out = os.path.join(dir_out, area, 'hha')
+            if not os.path.isdir(dir_hha_out):
+                os.makedirs(dir_hha_out)
+    
+            path_mat = os.path.join(dir_in, area, 'data', 'pose', name + '_pose.json')
+            with open(path_mat) as f:
+                json_data = f.read()
+            camera_mat = json.loads(json_data)['camera_k_matrix']
+            camera_mat = np.array(camera_mat)
+            camera_mat[:2] = camera_mat[:2] / 2
+            # print('camera_mat', camera_mat)
+    
+            path_dep_in = os.path.join(dir_dep_in, name + '_depth.png')
+            depth = cv2.imread(path_dep_in, cv2.IMREAD_UNCHANGED)
+            # Depth images are stored as 16-bit PNGs and
+            # have a maximum depth of 128m and a sensitivity of 1/512m(65535 is maximum depth).
+            depth += 1  # ignore max depth (65535 -> 0)
+            depth = depth.astype(np.float)
+            depth /= 512.0
+            hha = getHHA(camera_mat, depth, depth)  # input depth (m)
+            # print(hha.min(), hha.max())
+            path_hha_out = os.path.join(dir_hha_out, name + '.png')
+            cv2.imwrite(path_hha_out, hha)  # cv2.write will change hha into ahh
+    
         print('hha', i, area_name)
         if is_test and i > 0:
             break
@@ -176,20 +177,21 @@ def main(dir_in, dir_out, cpus):
     train_list, test_list = save_list(dir_in, dir_out)
     area_names = train_list + test_list
     print('area_names', len(area_names))
-    #save_imgs(dir_in, area_names, dir_out)
-    #save_depth(dir_in, area_names, dir_out)
-    #save_labels(dir_in, area_names, dir_out)
+    save_imgs(dir_in, area_names, dir_out)
+    save_depth(dir_in, area_names, dir_out)
+    save_labels(dir_in, area_names, dir_out)
 
     len_sub = len(area_names) // cpus
     chunks_area_names = [area_names[i:i + len_sub] for i in range(0, len(area_names), len_sub)]
-    print('TOTO')
     processes = []
+    # for chunk in chunks_area_names:
+    #     print(len(chunk))
     for chunk in chunks_area_names:
         print('chunk', len(chunk))
         p = Process(target=save_hha, args=(dir_in, chunk, dir_out))
         p.start()
         processes.append(p)
-    print('TOTO')
+
     for p in processes:
         p.join()
 

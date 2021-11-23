@@ -2,7 +2,7 @@
 model_zoo/*.pth
 SHAPECONV_ENV/
 OFFSETS/
-
+sid_*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
